@@ -3,6 +3,7 @@ using namespace std;
 
 
 const int n = 3;
+int MIN = n/2;
 
 
 struct node
@@ -34,6 +35,7 @@ bool search( int , node*& , int&);
 int ins_to_null_leaf( node* , int );
 void show_node_and_childs(node*);
 int *make_temp(node* , int, int&b);
+void del_from_normal_leaf(node*,int);
 
 void main() {
 	node *searchN = new node;
@@ -47,7 +49,7 @@ void main() {
 
 		case(1) :
 			int data;
-			cout  << "Enter num : ";
+			cout  << "Enter num for ADD : ";
 			cin >> data;
 
 			node * ss ;
@@ -62,10 +64,16 @@ void main() {
 		case(2):
 		
 			int x,i ;
+			
+
+			cout  << "Enter num for SEARCH : ";
 			cin >> x;
 
 			if (search(x,searchN,i)) {
 				
+
+				
+				cout <<endl << i << endl;
 				show_node_and_childs(searchN);
 				
 			} else {
@@ -76,6 +84,22 @@ void main() {
 
 			break;
 
+		case(3):
+		
+			int y ;
+			
+
+			cout  << "Enter num for DELETE : ";
+			cin >> y;
+				
+			node *bb;
+			bb = del(y);
+
+			if (! bb -> count == 0) {
+				show_node_and_childs(bb);
+			}
+
+			break;
 		default:
 			break;
 		}
@@ -441,13 +465,63 @@ node *insert( int a ) {
 
 node* del(int a) {
 
+	int b,cp = 0,m = a;
+	
 	node* nd;
-	int b;
+	
+	bool hCh = false;
 
 
-	if (search(a,nd,b)) {
+
+	if (search(m,nd,b)) {
+
+		if (nd -> hasCh) hCh = true;
+
+		for (int i = 0; i <= nd -> parent -> count; i++ ) {
+			if ( nd -> parent -> childs[i] == nd ) {cp = i;cout << "ss : " <<  cp << endl;}
+		}
 
 
+		if (nd != root) {
+			if (hCh) {
+				// if Not leaf
+
+
+			} else {
+				// If leaf
+				if ( nd -> count > MIN) {
+
+					// if normal leaf
+					del_from_normal_leaf(nd,m);
+					return nd;
+				} else {
+					// if not normal leaf
+
+					if(nd -> parent -> childs[cp - 1] -> count > MIN) {
+						// if left sibling is a normal leaf
+
+					} else if (nd -> parent -> childs[cp + 1] -> count > MIN) {
+						// if right sibling is a normal leaf
+
+					} else {
+						// if right and left siblings are not normal leafs
+
+						if ( nd -> parent -> count > MIN ) {
+							// if parent is a normal node
+
+						} else {
+
+							// if parent is not a normal node
+
+
+
+						}
+
+					}
+				}
+
+			}
+		}
 
 	} else {
 
@@ -548,6 +622,37 @@ void show_node_and_childs(node* ss) {
 			cout << endl;
 			cout << endl;
 			cout << endl;
+
+
+}
+
+void del_from_normal_leaf(node *a,int x) {
+
+	
+	
+
+	for (int i = 0 ; i < a -> count ; i++) {
+		if (a -> data[i] == x) {
+			if ( !i == a -> count - 1) {
+
+				for (int j = i ; j < a -> count - 1; j++) {
+
+					a -> data[j] = a -> data[j+1];
+				}
+
+				a -> count -= 1;
+				return;
+			} else {
+				a -> count -= 1;
+				return;
+			}
+			
+
+		}
+
+
+	}
+	a -> count -= 1;
 
 
 }
