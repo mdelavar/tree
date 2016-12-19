@@ -36,6 +36,7 @@ int ins_to_null_leaf( node* , int );
 void show_node_and_childs(node*);
 int *make_temp(node* , int, int&b);
 void del_from_normal_leaf(node*,int);
+void swapN(int&,int&);
 
 void main() {
 	node *searchN = new node;
@@ -483,8 +484,20 @@ node* del(int a) {
 
 
 		if (nd != root) {
+
 			if (hCh) {
+
 				// if Not leaf
+				if ( nd -> childs[b] -> count > MIN) {
+					//  use predecessor
+
+				} else if ( nd -> childs[b+1] -> count > MIN) {
+					// use successor
+
+				} else {
+
+
+				}
 
 
 			} else {
@@ -497,11 +510,21 @@ node* del(int a) {
 				} else {
 					// if not normal leaf
 
-					if(nd -> parent -> childs[cp - 1] -> count > MIN) {
+					if(nd -> parent -> childs[cp - 1] != NULL && nd -> parent -> childs[cp - 1] -> count > MIN) {
 						// if left sibling is a normal leaf
+						del_from_normal_leaf(nd,m);
+						ins_to_null_leaf(nd,nd -> parent -> data[cp - 1]);
+						swapN( nd -> parent -> childs[cp - 1] -> data[ nd -> parent -> childs[cp - 1] -> count - 1],nd -> parent -> data[cp - 1]);
+						nd -> parent -> childs[cp - 1] -> count -= 1;
+						return nd;
 
-					} else if (nd -> parent -> childs[cp + 1] -> count > MIN) {
+					} else if (nd -> parent -> childs[cp + 1] != NULL && nd -> parent -> childs[cp + 1] -> count > MIN) {
 						// if right sibling is a normal leaf
+						del_from_normal_leaf(nd,m);
+						ins_to_null_leaf(nd,nd -> parent -> data[cp]);
+						swapN( nd -> parent -> childs[cp + 1] -> data[0],nd -> parent -> data[cp]);
+						del_from_normal_leaf(nd -> parent -> childs[cp + 1] , nd -> parent -> childs[cp + 1] -> data[0]);
+						return nd;
 
 					} else {
 						// if right and left siblings are not normal leafs
@@ -655,4 +678,12 @@ void del_from_normal_leaf(node *a,int x) {
 	a -> count -= 1;
 
 
+}
+
+void swapN(int& a,int& b) {
+
+	int temp = a;
+	a = b;
+	b = temp;
+	return;
 }
