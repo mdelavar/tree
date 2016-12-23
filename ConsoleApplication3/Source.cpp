@@ -111,7 +111,7 @@ void main() {
 	}
 	
 }
-
+   
 
 bool search( int x , node* &n , int& b) {
 
