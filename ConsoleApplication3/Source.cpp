@@ -28,7 +28,7 @@ struct node
 node *root = NULL;
 
 node *insert( int );
-node* del(int);
+node* del(int,node*);
 bool search( int , node*& , int&);
 
 
@@ -94,7 +94,7 @@ void main() {
 			cin >> y;
 				
 			node *bb;
-			bb = del(y);
+			bb = del(y,NULL);
 
 			if (! bb -> count == 0) {
 				show_node_and_childs(bb);
@@ -464,95 +464,198 @@ node *insert( int a ) {
 
 
 
-node* del(int a) {
+node* del(int a, node* d) {
 
 	int b,cp = 0,m = a;
 	
-	node* nd;
+	node* nd = d;
 	
 	bool hCh = false;
+	cout << "del" << endl;
 
 
-
-	if (search(m,nd,b)) {
-
+	if (d != NULL || search(m,nd,b)) {
+		
 		if (nd -> hasCh) hCh = true;
-
-		for (int i = 0; i <= nd -> parent -> count; i++ ) {
-			if ( nd -> parent -> childs[i] == nd ) {cp = i;cout << "ss : " <<  cp << endl;}
+		if ( nd != root) {
+			for (int i = 0; i <= nd -> parent -> count; i++ ) {
+					if ( nd -> parent -> childs[i] == nd ) {cp = i;cout << "ss : " <<  cp << endl;}
+			}
 		}
-
-
-		if (nd != root) {
+		
 
 			if (hCh) {
 
 				// if Not leaf
 				if ( nd -> childs[b] -> count > MIN) {
+					
 					//  use predecessor
+					swapN(nd -> data[b] , nd -> childs[b] -> data[ nd -> childs[b] -> count - 1]);
+					del(m,nd -> childs[b]);
+					return nd;
 
 				} else if ( nd -> childs[b+1] -> count > MIN) {
-					// use successor
+
+					swapN(nd -> data[b] , nd -> childs[b+1] -> data[0]);
+					del(m,nd -> childs[b+1]);
+
+					return nd;
+					
 
 				} else {
-
-
+					
+					swapN(nd -> data[b] , nd -> childs[b] -> data[ nd -> childs[b] -> count - 1]);
+					del(m,nd -> childs[b]);
+					return nd;
+					
 				}
 
 
 			} else {
-				// If leaf
-				if ( nd -> count > MIN) {
+				
+					// If leaf
+					if ( nd -> count > MIN) {
 
-					// if normal leaf
-					del_from_normal_leaf(nd,m);
-					return nd;
-				} else {
-					// if not normal leaf
-
-					if(nd -> parent -> childs[cp - 1] != NULL && nd -> parent -> childs[cp - 1] -> count > MIN) {
-						// if left sibling is a normal leaf
+						// if normal leaf
 						del_from_normal_leaf(nd,m);
-						ins_to_null_leaf(nd,nd -> parent -> data[cp - 1]);
-						swapN( nd -> parent -> childs[cp - 1] -> data[ nd -> parent -> childs[cp - 1] -> count - 1],nd -> parent -> data[cp - 1]);
-						nd -> parent -> childs[cp - 1] -> count -= 1;
 						return nd;
-
-					} else if (nd -> parent -> childs[cp + 1] != NULL && nd -> parent -> childs[cp + 1] -> count > MIN) {
-						// if right sibling is a normal leaf
-						del_from_normal_leaf(nd,m);
-						ins_to_null_leaf(nd,nd -> parent -> data[cp]);
-						swapN( nd -> parent -> childs[cp + 1] -> data[0],nd -> parent -> data[cp]);
-						del_from_normal_leaf(nd -> parent -> childs[cp + 1] , nd -> parent -> childs[cp + 1] -> data[0]);
-						return nd;
-
 					} else {
-						// if right and left siblings are not normal leafs
+						// if not normal leaf
 
-						if ( nd -> parent -> count > MIN ) {
-							// if parent is a normal node
+						if(nd -> parent -> childs[cp - 1] != NULL && nd -> parent -> childs[cp - 1] -> count > MIN) {
+
+							// if left sibling is a normal leaf
+							del_from_normal_leaf(nd,m);
+							ins_to_null_leaf(nd,nd -> parent -> data[cp - 1]);
+							swapN( nd -> parent -> childs[cp - 1] -> data[ nd -> parent -> childs[cp - 1] -> count - 1],nd -> parent -> data[cp - 1]);
+							nd -> parent -> childs[cp - 1] -> count -= 1;
+							return nd;
+
+						} else if (nd -> parent -> childs[cp + 1] != NULL && nd -> parent -> childs[cp + 1] -> count > MIN) {
+
+							// if right sibling is a normal leaf
+							del_from_normal_leaf(nd,m);
+							ins_to_null_leaf(nd,nd -> parent -> data[cp]);
+							swapN( nd -> parent -> childs[cp + 1] -> data[0],nd -> parent -> data[cp]);
+							del_from_normal_leaf(nd -> parent -> childs[cp + 1] , nd -> parent -> childs[cp + 1] -> data[0]);
+							return nd;
 
 						} else {
 
-							// if parent is not a normal node
+							// if right and left siblings are not normal leafs
+						
+							
+								del_from_normal_leaf(nd,m);
+								int j = 0;
+								node *Nnode = new node;
+								node *Nchilds[n + 1];
+								j = 0;
+								if (cp == 0) {
+
+									if ( nd -> count > 0) {
+										for (int i = 0; i < nd -> count; i ++) {
+											Nnode -> data[j] = nd -> data[i];
+											Nnode -> count ++;
+											j++;
+										}
+									}
+
+									Nnode -> data[j] = nd -> parent -> data[cp];
+									Nnode -> count ++;
+									j++;
 
 
+									for (int i = 0; i < nd -> parent -> childs[cp +1] -> count; i++) {
+								
+										Nnode -> data[j] = nd -> parent -> childs[cp +1] -> data[i];
+										Nnode -> count ++;
+										j++;
+									}
+
+									j = 0;
+									Nchilds[0] = Nnode;
+									j ++;
+									for (int i = j+1 ; i < nd -> parent -> count + 1 ; i++) {
+
+										Nchilds[j] = nd -> parent -> childs[i];
+										j++;
+
+									}
+									if (nd -> parent == root && root -> count == 1) {
+
+										root = Nnode;
+										return root;
+
+									}
+									del(nd -> parent -> data[0], nd -> parent);
+
+								} else {
+									for (int i = 0; i < nd -> parent -> childs[cp -1] -> count; i++) {
+								
+										Nnode -> data[j] = nd -> parent -> childs[cp -1] -> data[i];
+										Nnode -> count ++;
+										j++;
+									}
+
+									Nnode -> data[j] = nd -> parent -> data[cp -1];
+									Nnode -> count ++;
+									j++;
+									if ( nd -> count > 0) {
+										for (int i = 0; i < nd -> count; i ++) {
+											Nnode -> data[j] = nd -> data[i];
+											Nnode -> count ++;
+											j++;
+										}
+									}
+
+									j = 0;
+									for (int i = j ; i < nd -> parent -> count  ; i++) {
+										if ( i == cp - 1) {
+											Nchilds[i] = Nnode;
+											j+=2;
+
+										} else {
+											Nchilds[i] = nd -> parent -> childs[j];
+											j++;
+
+										}
+									}
+									if (nd -> parent == root && root -> count == 1) {
+
+										root = Nnode;
+										return root;
+
+									}
+									del( nd -> parent -> data[cp -1] , nd -> parent );
+
+								}
+
+
+								for ( int i = 0; i < nd -> parent -> count + 1; i++) {
+									Nchilds[i] -> parent = nd -> parent;
+									nd -> parent -> childs[i] = Nchilds[i];
+
+								}
+
+							
+								return nd -> parent;
+							
+
+							
 
 						}
-
 					}
-				}
-
+				
 			}
-		}
+		
 
 	} else {
 
 		cout << "Not found value for delete !" << endl;
-
+		return new node;
 	}
 
-	return new node;
+	
 }
 
 
@@ -592,6 +695,7 @@ int *make_temp(node *nd, int a,int&b) {
 			b = nd -> count;
 
 		}
+
 		for ( int i = 0; i < n; i++) {
 
 			if (nd -> data[i] < a ) {
