@@ -37,6 +37,8 @@ void show_node_and_childs(node*);
 int *make_temp(node* , int, int&b);
 void del_from_normal_leaf(node*,int);
 void swapN(int&,int&);
+node* predecessor (node*);
+node* successor (node*);
 
 void main() {
 	node *searchN = new node;
@@ -96,11 +98,13 @@ void main() {
 			node *bb;
 			bb = del(y,NULL);
 
-			if (! bb -> count == 0) {
+			if ( bb -> count != 0) {
 				show_node_and_childs(bb);
 			}
 
 			break;
+
+		
 		default:
 			break;
 		}
@@ -487,25 +491,26 @@ node* del(int a, node* d) {
 			if (hCh) {
 
 				// if Not leaf
-				if ( nd -> childs[b] -> count > MIN) {
+				if ( predecessor(nd -> childs[b]) -> count > MIN) {
 					
 					//  use predecessor
-					swapN(nd -> data[b] , nd -> childs[b] -> data[ nd -> childs[b] -> count - 1]);
-					del(m,nd -> childs[b]);
+					swapN(nd -> data[b] , predecessor (nd -> childs[b] )-> data[ nd -> childs[b] -> count - 1]);
+					del(m,predecessor (nd -> childs[b]));
 					return nd;
 
-				} else if ( nd -> childs[b+1] -> count > MIN) {
-
-					swapN(nd -> data[b] , nd -> childs[b+1] -> data[0]);
-					del(m,nd -> childs[b+1]);
+				} else if ( successor(nd -> childs[b+1]) -> count > MIN) {
+					// use successor
+					swapN(nd -> data[b] , successor(nd -> childs[b+1]) -> data[0]);
+					del(m,successor(nd -> childs[b+1]));
 
 					return nd;
 					
 
 				} else {
 					
-					swapN(nd -> data[b] , nd -> childs[b] -> data[ nd -> childs[b] -> count - 1]);
-					del(m,nd -> childs[b]);
+					//  use predecessor
+					swapN(nd -> data[b] , predecessor (nd -> childs[b] )-> data[ nd -> childs[b] -> count - 1]);
+					del(m,predecessor (nd -> childs[b]));
 					return nd;
 					
 				}
@@ -587,7 +592,7 @@ node* del(int a, node* d) {
 										return root;
 
 									}
-									del(nd -> parent -> data[0], nd -> parent);
+									del_from_normal_leaf( nd -> parent , nd -> parent -> data[0]);
 
 								} else {
 									for (int i = 0; i < nd -> parent -> childs[cp -1] -> count; i++) {
@@ -626,7 +631,7 @@ node* del(int a, node* d) {
 										return root;
 
 									}
-									del( nd -> parent -> data[cp -1] , nd -> parent );
+									del_from_normal_leaf(nd -> parent  ,  nd -> parent -> data[cp -1]);
 
 								}
 
@@ -790,4 +795,19 @@ void swapN(int& a,int& b) {
 	a = b;
 	b = temp;
 	return;
+}
+
+node* predecessor (node* nd1) {
+
+	while ( nd1 -> hasCh) {
+		nd1 = nd1 -> childs[nd1 -> count];
+	}
+	return nd1;
+
+}
+node* successor (node* nd2) {
+	while ( nd2 -> hasCh) {
+		nd2 = nd2 -> childs[0];
+	}
+	return nd2;
 }
